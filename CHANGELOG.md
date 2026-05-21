@@ -4,6 +4,76 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.2.0] — 2026-05-21 — Google PageSpeed Insights diagnostic
+
+Closes the "did this module actually help?" gap. Connects to Google's PageSpeed Insights API so you can run real performance diagnostics from the admin and see how each ETechFlow setting maps to Google's recommendations.
+
+### Why this is the headline feature
+
+Every Amasty / Mageworx / Mirasvit page-speed module markets the same optimization features. What makes Amasty's $259 product feel premium is the **Diagnostic** tool that shows the merchant a real Google score before/after. We now ship the same surface, free under the ETechFlow Bundle key, with one improvement Amasty doesn't have: **the recommendation list shows which ETechFlow feature would fix each Google complaint**, inline.
+
+### Added
+
+- **Admin page** at *Stores → Settings → Page Speed Diagnose*. Run a real PSI call from the admin:
+  - Big colour-coded score card (green ≥ 90, orange 50-89, red < 50 — Google's own bands)
+  - **Lab data** (Lighthouse): FCP, LCP, TBT, CLS
+  - **Field data** (CrUX — Chrome User Experience Report, real-user data when available)
+  - Sorted recommendations list (biggest impact first) with HIGH/MEDIUM/LOW impact buckets
+  - **ETechFlow fix badge** on every recommendation we cover — "Serve images in next-gen formats → Enable WebP conversion (IO → General → Module Enabled)"
+- **Google PageSpeed Insights API integration** via `Model/Psi/PsiClient` — vanilla `Curl` HTTP, no SDK, no library. Free 25,000 requests/day per merchant's Google Cloud API key.
+- **Admin config section**: *Stores → Configuration → eTechFlow → Image Optimizer → Google PageSpeed Insights* — API key (encrypted), default strategy (mobile/desktop), timeout.
+- **Recommendation mapper** (`Model/Recommendation/Mapper`) — curated mapping of ~16 PSI audit IDs to the ETechFlow feature that fixes them.
+- **DB table** `etechflow_io_diagnostic_log` — every diagnostic run persisted with lab + field metrics + raw JSON for future re-parsing. Foundation for v1.3's score-timeline graph.
+- **CLI** `bin/magento etechflow:io:diagnose --url=... --strategy=mobile|desktop --json --pass-score=80` — headless diagnostic for CI integration. Exit 0 if score ≥ pass-score, 1 if below, 2 if API call itself failed. Perfect for pre-deploy gates.
+
+### How it stacks up vs Amasty's PSI integration
+
+| Feature | Amasty Pro ($259) | ETechFlow IO v1.2.0 |
+|---|---|---|
+| PSI Diagnostic in admin | ✅ | ✅ |
+| Mobile + desktop scores | ✅ | ✅ |
+| CrUX field data display | partial | ✅ (with category badge) |
+| Recommendations list with impact | ✅ | ✅ |
+| **One-click feature mapping** | ❌ — admin has to guess which setting fixes which audit | ✅ **— "ETechFlow fix" badge on every recommendation we cover** |
+| Headless CLI for CI gates | ❌ | ✅ |
+| JSON output for tooling | ❌ | ✅ |
+| Persisted history (foundation for trend graph) | partial | ✅ |
+| Source visibility | ❌ — Amasty docs walled | ✅ public on GitHub |
+
+### Setup (one-time, ~3 min)
+
+1. Go to https://console.cloud.google.com/apis/credentials
+2. Create Credentials → API Key (free)
+3. Enable "PageSpeed Insights API" on the project (free, 25,000 requests/day)
+4. Paste the key into *Stores → Configuration → eTechFlow → Image Optimizer → Google PageSpeed Insights → PageSpeed Insights API Key*
+
+Without a key it still works (with Google's per-IP rate limit), but the key is strongly recommended.
+
+### Backwards compatibility
+
+- New DB table — **requires `setup:upgrade`** when upgrading from v1.1.0.
+- No changes to v1.1.0's admin grid or v1.0.0's conversion logic. All previous features unchanged.
+
+### Notes for developers
+
+A few real Magento gotchas surfaced during live testing — documenting so future modules don't re-hit them:
+
+- **`Magento\Backend\Block\Template` already declares a non-readonly `$formKey` property.** PHP 8.1+ rejects re-declaring it as `readonly` in a child class. Use a differently-named property (we use `$diagnoseFormKey`).
+- **Magento's declarative schema XSD caps `varchar` columns at `length="1024"`** — if you need more, use `text` (which can't be indexed without a prefix that declarative schema doesn't support).
+- **InnoDB on utf8mb4 limits index keys to 3072 bytes.** A composite index `(varchar(768), varchar(16), timestamp)` = 768×4 + 16×4 + 4 = 3140 bytes — over the limit. Use separate single-column indexes instead of a composite when the leading column is long.
+
+### Migration
+
+```
+composer update etechflow/module-image-optimizer
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+# Restart php-fpm to clear OPcache (mandatory on prod with opcache.validate_timestamps=0)
+```
+
+---
+
 ## [1.1.0] — 2026-05-21 — Admin grid + savings banner
 
 Closes the "what just happened?" gap from v1.0. Merchants who don't live in the CLI can now see exactly what was converted, how much was saved, and roll back individual conversions if needed.

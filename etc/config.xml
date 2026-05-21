@@ -21,6 +21,10 @@
                 <category>1</category>
                 <cms>0</cms>
             </coverage>
+            <psi>
+                <default_strategy>mobile</default_strategy>
+                <timeout_seconds>90</timeout_seconds>
+            </psi>
         </etechflow_io>
     </default>
 </config>

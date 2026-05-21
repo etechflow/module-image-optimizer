@@ -25,6 +25,10 @@ class Config
     public const XML_PATH_PATHS_CATEGORY   = 'etechflow_io/coverage/category';
     public const XML_PATH_PATHS_CMS        = 'etechflow_io/coverage/cms';
 
+    public const XML_PATH_PSI_API_KEY      = 'etechflow_io/psi/api_key';
+    public const XML_PATH_PSI_STRATEGY     = 'etechflow_io/psi/default_strategy';
+    public const XML_PATH_PSI_TIMEOUT      = 'etechflow_io/psi/timeout_seconds';
+
     /**
      * Quality default — sweet spot between file size and visible quality.
      * 80 is the value most competitor modules also default to; cwebp's
@@ -107,5 +111,32 @@ class Config
     public function isCmsCovered(): bool
     {
         return $this->scopeConfig->isSetFlag(self::XML_PATH_PATHS_CMS, ScopeInterface::SCOPE_STORE);
+    }
+
+    /**
+     * Stored encrypted in the DB via Magento\Config\Model\Config\Backend\Encrypted.
+     * The Encryptor service decrypts it when ScopeConfigInterface reads. Caller
+     * just receives the plaintext API key as a string.
+     */
+    public function getGooglePsiApiKey(): string
+    {
+        $value = $this->scopeConfig->getValue(self::XML_PATH_PSI_API_KEY, ScopeInterface::SCOPE_STORE);
+        return trim((string) $value);
+    }
+
+    /**
+     * Either 'mobile' or 'desktop'. Mobile is Google's mobile-first indexing
+     * default and what we use unless the merchant changes it.
+     */
+    public function getPsiDefaultStrategy(): string
+    {
+        $value = $this->scopeConfig->getValue(self::XML_PATH_PSI_STRATEGY, ScopeInterface::SCOPE_STORE);
+        return in_array($value, ['mobile', 'desktop'], true) ? $value : 'mobile';
+    }
+
+    public function getPsiTimeoutSeconds(): int
+    {
+        $value = (int) $this->scopeConfig->getValue(self::XML_PATH_PSI_TIMEOUT, ScopeInterface::SCOPE_STORE);
+        return $value > 0 ? $value : 90;
     }
 }

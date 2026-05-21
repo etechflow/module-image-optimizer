@@ -20,6 +20,8 @@
                       xsi:type="object">ETechFlow\ImageOptimizer\Console\Command\OptimizeCommand</item>
                 <item name="etechflow_io_verify"
                       xsi:type="object">ETechFlow\ImageOptimizer\Console\Command\VerifyCommand</item>
+                <item name="etechflow_io_diagnose"
+                      xsi:type="object">ETechFlow\ImageOptimizer\Console\Command\DiagnoseCommand</item>
             </argument>
         </arguments>
     </type>
