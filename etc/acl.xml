@@ -13,9 +13,6 @@
                         </resource>
                     </resource>
                     <resource id="Magento_Backend::stores_other_settings">
-                        <resource id="ETechFlow_ImageOptimizer::diagnose"
-                                  title="ETechFlow Page Speed Diagnose"
-                                  sortOrder="55"/>
                         <resource id="ETechFlow_ImageOptimizer::log"
                                   title="ETechFlow Image Optimization Log"
                                   sortOrder="60">

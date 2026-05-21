@@ -78,37 +78,6 @@
                 </field>
             </group>
 
-            <group id="psi" translate="label" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Google PageSpeed Insights</label>
-                <comment><![CDATA[Optional. Connects to Google's PageSpeed Insights API so you can run real-world diagnostic scans from the admin (Stores → Settings → Page Speed Diagnose).
-                <br><br>
-                <strong>One-time setup (~3 min)</strong>:
-                <ol>
-                  <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">console.cloud.google.com/apis/credentials</a></li>
-                  <li>Click "Create Credentials → API Key" (free)</li>
-                  <li>Enable "PageSpeed Insights API" on the project (free, 25,000 requests/day)</li>
-                  <li>Paste the key below.</li>
-                </ol>]]></comment>
-                <field id="api_key" translate="label comment" sortOrder="10" type="obscure"
-                       showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>PageSpeed Insights API Key</label>
-                    <comment><![CDATA[Free Google Cloud API key. Without it, diagnostic still works but you'll hit Google's per-IP rate limit (~1 request/second) and may see "Quota Exceeded" errors. Strongly recommended to set this.]]></comment>
-                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                </field>
-                <field id="default_strategy" translate="label comment" sortOrder="20" type="select"
-                       showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Default Strategy</label>
-                    <comment><![CDATA[Which PageSpeed score to fetch by default. Mobile is what Google ranks against (mobile-first indexing); desktop is informational.]]></comment>
-                    <source_model>ETechFlow\ImageOptimizer\Model\Source\PsiStrategy</source_model>
-                </field>
-                <field id="timeout_seconds" translate="label comment" sortOrder="30" type="text"
-                       showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>API Timeout (seconds)</label>
-                    <comment><![CDATA[PageSpeed Insights typically takes 15-45s per page. Default 90s gives generous headroom; lower if your CI pipeline needs faster failure.]]></comment>
-                    <validate>validate-digits validate-greater-than-zero</validate>
-                </field>
-            </group>
-
             <group id="coverage" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Image Coverage</label>
                 <comment><![CDATA[Which image directories should the bulk CLI walk?]]></comment>

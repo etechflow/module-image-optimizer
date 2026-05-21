@@ -4,6 +4,59 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.3.0] — 2026-05-21 — Scope correction: PSI Diagnose moved out to the upcoming PSO module
+
+**Reverts the PSI Diagnose feature added in v1.2.0.** The Diagnose tool measures page speed via Google's PageSpeed Insights API but doesn't actually optimize anything — it's a measurement tool, not an image-optimization feature. After shipping v1.2.0 we realised it didn't belong in a module called "Image Optimizer".
+
+The PSI code wasn't deleted — it stays on GitHub at the [v1.2.0 tag](https://github.com/etechflow/module-image-optimizer/releases/tag/v1.2.0) and will be lifted into the upcoming `ETechFlow_PageSpeedOptimizer` (PSO) module where it belongs alongside the broader code-optimization feature set (CSS/JS minification, defer fonts, prioritize resource loading).
+
+### What v1.3.0 actually contains
+
+Everything from **v1.1.0** — pure image optimization, no diagnostic:
+
+- WebP conversion via cwebp / Imagick / GD engine chain (v1.0.0)
+- `<picture>` element rendering + native `loading="lazy"` (v1.0.0)
+- Bulk + cron CLI: `etechflow:io:optimize`, `etechflow:io:verify` (v1.0.0)
+- Admin grid at *Stores → Settings → Image Optimization Log* (v1.1.0)
+- Savings summary banner (v1.1.0)
+- Mass actions: Delete log entries, Restore originals (v1.1.0)
+
+### Removed (compared to v1.2.0)
+
+- ❌ `Model/Psi/PsiClient` + `DiagnosticLogger` — moved to PSO module
+- ❌ `Model/Data/DiagnosticResult` + `Recommendation` — moved to PSO module
+- ❌ `Model/Recommendation/Mapper` — moved to PSO module
+- ❌ `Model/Source/PsiStrategy` — moved to PSO module
+- ❌ `Controller/Adminhtml/Diagnose/*` — moved to PSO module
+- ❌ `Block/Adminhtml/Diagnose/Page` — moved to PSO module
+- ❌ `Console/Command/DiagnoseCommand` — moved to PSO module
+- ❌ Admin page at *Stores → Settings → Page Speed Diagnose* — moved to PSO
+- ❌ `bin/magento etechflow:io:diagnose` CLI — moved to PSO
+- ❌ DB table `etechflow_io_diagnostic_log` — **auto-dropped by Magento's declarative schema** on next `setup:upgrade` (still in whitelist; not in db_schema.xml = drop)
+- ❌ Admin config section: Google PageSpeed Insights — moved to PSO
+- ❌ Encrypted PSI API key, default strategy, timeout settings — moved to PSO
+
+### Migration from v1.2.0
+
+```
+composer update etechflow/module-image-optimizer
+bin/magento setup:upgrade      # drops the etechflow_io_diagnostic_log table
+bin/magento setup:di:compile
+bin/magento cache:flush
+```
+
+Any merchant who saved a Google API key in v1.2.0's admin config will see the field disappear from admin. The encrypted key value remains in `core_config_data` until manually cleared (or simply ignored — no other code reads it). When PSO ships, it'll re-introduce the same field in its own admin section.
+
+### Why bump minor not patch
+
+v1.2.0 → v1.2.1 would suggest a bugfix. This is a deliberate feature removal that changes the module's interface (URLs, CLIs, admin sections). v1.3.0 makes the change visible in semver — anyone tracking the changelog sees something happened.
+
+### Lessons documented
+
+Three Magento gotchas that surfaced during the v1.2.0 build remain documented above (PHP 8.1+ readonly child property, declarative-schema varchar(1024) cap, InnoDB utf8mb4 3072-byte key limit). Those lessons apply equally to PSO when we build it.
+
+---
+
 ## [1.2.0] — 2026-05-21 — Google PageSpeed Insights diagnostic
 
 Closes the "did this module actually help?" gap. Connects to Google's PageSpeed Insights API so you can run real performance diagnostics from the admin and see how each ETechFlow setting maps to Google's recommendations.
