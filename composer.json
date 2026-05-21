@@ -2,7 +2,7 @@
     "name": "etechflow/module-image-optimizer",
     "description": "Server-side WebP image optimization for Magento 2. No external API, no per-image fees, no rate limits — converts JPG/PNG to WebP locally via cwebp / Imagick / GD with graceful fallback. Emits <picture> with WebP source + JPEG fallback for browser compatibility. Native loading=lazy. Bulk + cron + CLI. Profiler-instrumented. Standalone or bundled in the ETechFlow suite.",
     "type": "magento2-module",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "license": "proprietary",
     "authors": [
         {

@@ -12,6 +12,16 @@
                                       sortOrder="60"/>
                         </resource>
                     </resource>
+                    <resource id="Magento_Backend::stores_other_settings">
+                        <resource id="ETechFlow_ImageOptimizer::log"
+                                  title="ETechFlow Image Optimization Log"
+                                  sortOrder="60">
+                            <resource id="ETechFlow_ImageOptimizer::log_delete"
+                                      title="Delete log entries"/>
+                            <resource id="ETechFlow_ImageOptimizer::log_restore"
+                                      title="Restore originals (delete WebP files)"/>
+                        </resource>
+                    </resource>
                 </resource>
             </resource>
         </resources>

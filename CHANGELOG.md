@@ -4,6 +4,42 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.1.0] — 2026-05-21 — Admin grid + savings banner
+
+Closes the "what just happened?" gap from v1.0. Merchants who don't live in the CLI can now see exactly what was converted, how much was saved, and roll back individual conversions if needed.
+
+### Added
+
+- **Admin grid** at `Stores → Settings → Image Optimization Log`. Magento UI Component listing of `etechflow_io_optimization_log` rows with filterable + sortable columns: ID, Source path, From/To, Bytes before/after, **Savings %** (sorted desc by default), Engine, Status, Optimized at.
+- **Savings summary banner** at the top of the grid — 5 metric cards: images optimized, source total, WebP total, **saved on disk** (green), avg savings %.
+- **Mass action: Delete log entries** — clears stale audit rows for images that no longer exist in the catalog. WebP files on disk are untouched (they get re-logged on the next `etechflow:io:optimize` run).
+- **Mass action: Restore originals** — deletes the `.webp` file from disk AND removes the log row. Safety-checked against path-traversal: only files under `pub/` with a `.webp` extension can be deleted. Browsers fall back to serving the original JPEG/PNG after this runs.
+- **ACL split**: `ETechFlow_ImageOptimizer::log` (view), `log_delete` (delete log rows), `log_restore` (delete WebP files). Grant view-only access to most admin roles, restrict destructive actions to ops.
+- **Status source model** for the filter dropdown.
+
+### Why not more
+
+Skipped on purpose to avoid overkill in v1.1:
+- No async "Run bulk optimize now" admin button — `etechflow:io:optimize` from the CLI is the supported path, and most production deploys already run it via cron.
+- No per-row buttons — mass actions cover Delete + Restore, which is everything per-row buttons would do.
+- No requeue mass action — the CLI re-converts changed files via mtime dedupe automatically.
+
+### Backwards compatibility
+
+No schema changes, no `setup:upgrade` required when upgrading from v1.0.0 → v1.1.0. Only `composer update` + `cache:flush`.
+
+### Migration
+
+```
+composer update etechflow/module-image-optimizer
+bin/magento setup:di:compile
+bin/magento cache:flush
+```
+
+The new admin section appears under **Stores → Settings → Image Optimization Log** after cache flush. Existing CLI workflows are unchanged.
+
+---
+
 ## [1.0.0] — 2026-05-21 — Server-side WebP optimization, no external API
 
 First commercial release. Converts product images to WebP locally on your server (no Tinify / ShortPixel / external API), emits `<picture>` elements with proper fallback, and ships with bulk + cron + CLI tooling.
