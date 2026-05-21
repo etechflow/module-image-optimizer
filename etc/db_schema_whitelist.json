@@ -1,0 +1,28 @@
+{
+    "etechflow_io_optimization_log": {
+        "column": {
+            "log_id": true,
+            "source_path": true,
+            "output_path": true,
+            "format_from": true,
+            "format_to": true,
+            "bytes_before": true,
+            "bytes_after": true,
+            "savings_pct": true,
+            "engine": true,
+            "source_mtime": true,
+            "status": true,
+            "error_message": true,
+            "optimized_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ETF_IO_LOG_UNQ_SOURCE_OUTPUT": true
+        },
+        "index": {
+            "ETF_IO_LOG_IDX_SOURCE": true,
+            "ETF_IO_LOG_IDX_STATUS_DATE": true,
+            "ETF_IO_LOG_IDX_SAVINGS": true
+        }
+    }
+}

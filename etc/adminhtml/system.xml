@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="etechflow" translate="label" sortOrder="200">
+            <label>eTechFlow</label>
+        </tab>
+
+        <section id="etechflow_io" translate="label" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Image Optimizer</label>
+            <tab>etechflow</tab>
+            <resource>ETechFlow_ImageOptimizer::config</resource>
+
+            <group id="license" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>License</label>
+                <field id="license_key" translate="label comment" sortOrder="10" type="obscure"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>License Key</label>
+                    <comment><![CDATA[Per-module key issued by eTechFlow for this host. Leave blank if using a Bundle License Key.]]></comment>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="bundle_license_key" translate="label comment" sortOrder="20" type="obscure"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Bundle License Key</label>
+                    <comment><![CDATA[Shared key activating every ETechFlow module on this host. Set EITHER this OR the per-module key.]]></comment>
+                    <config_path>etechflow_bundle/license/license_key</config_path>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="production_environment" translate="label comment" sortOrder="30" type="select"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Production Environment</label>
+                    <comment><![CDATA[Set to No on staging/dev to bypass licensing. Most dev hostnames auto-detect.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+
+            <group id="general" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Settings</label>
+                <field id="enabled" translate="label comment" sortOrder="10" type="select"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Module Enabled</label>
+                    <comment><![CDATA[Turn the whole module on/off without uninstalling.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="quality" translate="label comment" sortOrder="20" type="text"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>WebP Quality (1-100)</label>
+                    <comment><![CDATA[Higher = larger files with marginal quality gain past ~85. Default 80 is the photo sweet-spot.]]></comment>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                </field>
+                <field id="engine_order" translate="label comment" sortOrder="30" type="text"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Engine Priority Order</label>
+                    <comment><![CDATA[Comma-separated. We try each in order, skip if unavailable. Recommended: cwebp,imagick,gd (binary first, then PHP extensions).]]></comment>
+                </field>
+                <field id="batch_size" translate="label comment" sortOrder="40" type="text"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Bulk Batch Size</label>
+                    <comment><![CDATA[Images per CLI batch / cron tick. Default 200. Lower if OOM-killed on large catalogs.]]></comment>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                </field>
+            </group>
+
+            <group id="output" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Frontend Output</label>
+                <field id="picture_block" translate="label comment" sortOrder="10" type="select"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Emit &lt;picture&gt; element</label>
+                    <comment><![CDATA[Wraps every product &lt;img&gt; in &lt;picture&gt; with WebP source + JPEG fallback. Browser picks the right one automatically.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="lazy_load" translate="label comment" sortOrder="20" type="select"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Native lazy-loading</label>
+                    <comment><![CDATA[Adds loading="lazy" to below-the-fold product images. Free Core Web Vitals (LCP) win.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+
+            <group id="coverage" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Image Coverage</label>
+                <comment><![CDATA[Which image directories should the bulk CLI walk?]]></comment>
+                <field id="product_cache" translate="label comment" sortOrder="10" type="select"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Product cache (pub/media/catalog/product/cache)</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="category" translate="label comment" sortOrder="20" type="select"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Category images (pub/media/catalog/category)</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="cms" translate="label comment" sortOrder="30" type="select"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>CMS / Page Builder (pub/media/wysiwyg)</label>
+                    <comment><![CDATA[Off by default — turn on if your CMS has heavy hero images.]]></comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

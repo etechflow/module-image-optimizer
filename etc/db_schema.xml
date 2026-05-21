@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <!--
+        etechflow_io_optimization_log
+        ─────────────────────────────────────────────────────────────
+        One row per (source_path, format_to) conversion. Used for:
+          1. Dedupe — "have we already converted this file?"
+          2. Restore — "what was the source path before WebP?"
+          3. Savings report — total bytes saved across the catalog
+          4. Admin grid — recent conversions + per-image action column
+
+        We use source_path as the canonical key rather than a digest of
+        the file contents so the lookup is cheap (index on source_path)
+        and we can detect "source mtime changed → reconvert" via the
+        source_mtime column.
+
+        Magento XSD note: `comment` attribute is allowed on <table> and
+        <column>, NOT on <index> or <constraint>. v1.0.0 of BISN had
+        this wrong and setup:upgrade rolled back; learned the hard way.
+    -->
+    <table name="etechflow_io_optimization_log" resource="default" engine="innodb"
+           comment="ETechFlow IO — conversion audit + dedupe + savings report">
+
+        <column xsi:type="int" name="log_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Primary key"/>
+
+        <column xsi:type="varchar" name="source_path" length="1024" nullable="false"
+                comment="Relative path under pub/ for the source JPEG/PNG"/>
+
+        <column xsi:type="varchar" name="output_path" length="1024" nullable="false"
+                comment="Relative path under pub/ for the generated .webp"/>
+
+        <column xsi:type="varchar" name="format_from" length="16" nullable="false"
+                comment="Source format: jpeg | png | gif"/>
+
+        <column xsi:type="varchar" name="format_to" length="16" nullable="false" default="webp"
+                comment="Target format: webp (v1.1 will add avif)"/>
+
+        <column xsi:type="int" name="bytes_before" padding="10" unsigned="true" nullable="false" default="0"
+                comment="Source file size in bytes"/>
+
+        <column xsi:type="int" name="bytes_after" padding="10" unsigned="true" nullable="false" default="0"
+                comment="Generated file size in bytes"/>
+
+        <column xsi:type="smallint" name="savings_pct" padding="5" nullable="false" default="0"
+                comment="Pre-computed (bytes_before - bytes_after) * 100 / bytes_before — for fast grid sort"/>
+
+        <column xsi:type="varchar" name="engine" length="16" nullable="false"
+                comment="Engine that did the conversion: cwebp | imagick | gd"/>
+
+        <column xsi:type="int" name="source_mtime" padding="10" unsigned="true" nullable="true"
+                comment="Source file mtime at conversion time — for change-detection on re-runs"/>
+
+        <column xsi:type="varchar" name="status" length="20" nullable="false" default="ok"
+                comment="ok | failed | skipped"/>
+
+        <column xsi:type="text" name="error_message" nullable="true"
+                comment="Surface failure cause for the admin grid"/>
+
+        <column xsi:type="timestamp" name="optimized_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="When the row was written"/>
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="log_id"/>
+        </constraint>
+
+        <constraint xsi:type="unique" referenceId="ETF_IO_LOG_UNQ_SOURCE_OUTPUT">
+            <column name="source_path"/>
+            <column name="output_path"/>
+        </constraint>
+
+        <index referenceId="ETF_IO_LOG_IDX_SOURCE" indexType="btree">
+            <column name="source_path"/>
+        </index>
+
+        <index referenceId="ETF_IO_LOG_IDX_STATUS_DATE" indexType="btree">
+            <column name="status"/>
+            <column name="optimized_at"/>
+        </index>
+
+        <index referenceId="ETF_IO_LOG_IDX_SAVINGS" indexType="btree">
+            <column name="savings_pct"/>
+        </index>
+    </table>
+
+</schema>
