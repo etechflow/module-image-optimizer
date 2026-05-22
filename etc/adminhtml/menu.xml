@@ -2,11 +2,43 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
-        <add id="ETechFlow_ImageOptimizer::log"
-             title="Image Optimization Log"
+        <!-- Shared eTechFlow top-level — declared identically by every
+             eTechFlow module so Magento merges to one sidebar entry.
+             See reference_etechflow_menu_convention. -->
+        <add id="eTechFlow::root"
+             title="eTechFlow"
+             module="ETechFlow_ImageOptimizer"
+             sortOrder="68"
+             resource="Magento_Backend::admin"/>
+
+        <add id="eTechFlow::settings"
+             title="Settings"
+             module="ETechFlow_ImageOptimizer"
+             sortOrder="500"
+             parent="eTechFlow::root"
+             resource="Magento_Backend::admin"/>
+
+        <add id="eTechFlow::configuration"
+             title="Configuration"
+             module="ETechFlow_ImageOptimizer"
+             sortOrder="10"
+             parent="eTechFlow::settings"
+             action="adminhtml/system_config/edit/section/etechflow_io"
+             resource="Magento_Config::config"/>
+
+        <!-- Image Optimizer column. -->
+        <add id="ETechFlow_ImageOptimizer::root"
+             title="Image Optimizer"
              module="ETechFlow_ImageOptimizer"
              sortOrder="60"
-             parent="Magento_Backend::system_other_settings"
+             parent="eTechFlow::root"
+             resource="ETechFlow_ImageOptimizer::log"/>
+
+        <add id="ETechFlow_ImageOptimizer::log"
+             title="Optimization Log"
+             module="ETechFlow_ImageOptimizer"
+             sortOrder="10"
+             parent="ETechFlow_ImageOptimizer::root"
              action="etechflow_io/log/index"
              resource="ETechFlow_ImageOptimizer::log"/>
     </menu>

@@ -4,6 +4,27 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.3.1] — 2026-05-22 — Move admin menu under eTechFlow top-level sidebar
+
+### Changed
+
+- **IO admin pages relocated to a dedicated "eTechFlow" sidebar entry.** Previously the Optimization Log lived under `System → Other Settings`. Now it sits as an `Image Optimizer` column inside a new top-level `eTechFlow` sidebar entry (clusters with other paid-extension vendors above Magento's Stores). Matches the pattern Amasty / Magefan / MageWorx use.
+- Each eTechFlow module declares the same `eTechFlow::root` + `eTechFlow::settings` + `eTechFlow::configuration` entries — Magento merges by id, so installing N modules still produces exactly one `eTechFlow` sidebar group.
+
+### Migration
+
+```
+composer update etechflow/module-image-optimizer
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+```
+
+Admin URL routes unchanged (`etechflow_io/log/index` still works). No schema or behaviour changes — pure menu-layout adjustment.
+
+---
+
 ## [1.3.0] — 2026-05-21 — Scope correction: PSI Diagnose moved out to the upcoming PSO module
 
 **Reverts the PSI Diagnose feature added in v1.2.0.** The Diagnose tool measures page speed via Google's PageSpeed Insights API but doesn't actually optimize anything — it's a measurement tool, not an image-optimization feature. After shipping v1.2.0 we realised it didn't belong in a module called "Image Optimizer".
